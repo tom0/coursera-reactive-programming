@@ -18,9 +18,6 @@ abstract class QuickCheckHeap extends Properties("Heap") with IntHeap {
     findMin(h) == (if (a < b) a else b)
   }
 
-//  property("minN") = forAll { a: Int =>
-//  }
-
   property("delete1") = forAll { a: Int =>
     val h = deleteMin(insert(a, empty))
     isEmpty(h)
@@ -38,26 +35,19 @@ abstract class QuickCheckHeap extends Properties("Heap") with IntHeap {
 
   property("gen2") = forAll { (h: H) =>
     val maybeSorted = toMaybeSortedList(h)
-    maybeSorted == maybeSorted.sorted(ord)
+    maybeSorted == maybeSorted.sorted(ord.reverse)
   }
 
-  def toMaybeSortedList(heap: H) = {
-    @tailrec
-    def toMaybeSortedListInner(heap: H, acc: List[A] = Nil): List[A] = {
-      println(heap)
-      heap match {
-        case h if isEmpty(h) => acc
-        case h =>
-        {
-          val min = findMin(h)
-          toMaybeSortedListInner(deleteMin(h), acc :+ min)
-        }
+  @tailrec
+  final def toMaybeSortedList(heap: H, acc: List[A] = Nil): List[A] = {
+    heap match {
+      case h if isEmpty(h) => acc
+      case h =>
+      {
+        val min = findMin(h)
+        toMaybeSortedList(deleteMin(h), min :: acc)
       }
     }
-
-    val res = toMaybeSortedListInner(heap)
-    println("Sorted = " + res)
-    res
   }
 
   lazy val genHeap: Gen[H] = for {
@@ -66,5 +56,4 @@ abstract class QuickCheckHeap extends Properties("Heap") with IntHeap {
   } yield insert(i, m)
 
   implicit lazy val arbHeap: Arbitrary[H] = Arbitrary(genHeap)
-
 }
