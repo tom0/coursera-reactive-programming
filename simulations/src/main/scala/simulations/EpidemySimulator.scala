@@ -25,11 +25,11 @@ class EpidemySimulator extends Simulator {
     import RoomHelpers._
 
     private var innerInfected = false
+    private var innerSick = false
+    private var innerDead = false
+    private var innerImmune = false
+
     infected = if (initialInfected > 0) { initialInfected -= 1; true; } else false
-    var sick = false
-    var immune = false
-    var dead = false
-    var daysInfected = 0
 
     // demonstrates random number generation
     var row: Int = randomBelow(roomRows)
@@ -42,16 +42,50 @@ class EpidemySimulator extends Simulator {
     // Do an initial move.
     action()
 
+    def infected = innerInfected
     def infected_=(newValue: Boolean) {
-      val oldValue = innerInfected
-      innerInfected = newValue
-      if (!oldValue && newValue) {
-        // We are newly infected
-        afterDelay(1){ updateInfectionState() }
+      if (!dead) {
+        val oldValue = innerInfected
+        innerInfected = newValue
+        if (!oldValue && newValue) {
+          // We are newly infected
+          afterDelay(6) { sick = true }
+        }
       }
     }
 
-    def infected = innerInfected
+    def sick = innerSick
+    def sick_=(newValue: Boolean) {
+      if (!dead) {
+        innerSick = newValue
+        if (innerSick) afterDelay(8) {
+          dead = rollTheDie(deathRate)
+        }
+      }
+    }
+
+    def dead = innerDead
+    def dead_=(newValue: Boolean) {
+      // Death cannot be undone.
+      if (!dead) {
+        innerDead = newValue
+        if (!dead && infected) afterDelay(2) {
+          sick = false
+          immune = true
+        }
+      }
+    }
+
+    def immune = innerImmune
+    def immune_=(newValue: Boolean) {
+      if (!dead) {
+        innerImmune = newValue
+        if (immune) afterDelay(2) {
+          immune = false
+          infected = false
+        }
+      }
+    }
 
     def action() {
       afterDelay(randomBelow(5) + 1){
@@ -72,28 +106,6 @@ class EpidemySimulator extends Simulator {
       col = c
       if (!infected && !immune && doesRoomContainInfectedPeople(row, col)) {
         infected = rollTheDie(transmissibilityRate)
-      }
-    }
-
-    def updateInfectionState(): Unit = {
-      daysInfected += 1
-
-      // I am infected. Am I going to die?
-      if (daysInfected == 18) {
-        immune = false
-        infected = false
-        daysInfected = 0
-      } else {
-        if (daysInfected == 16) {
-          sick = false
-          immune = true
-        } else if (daysInfected == 14) {
-          dead = rollTheDie(deathRate)
-        } else if (daysInfected == 6) {
-          sick = true
-        }
-
-        if (!dead) afterDelay(1){ updateInfectionState() }
       }
     }
 
