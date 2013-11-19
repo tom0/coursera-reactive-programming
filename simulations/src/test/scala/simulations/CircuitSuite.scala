@@ -101,28 +101,6 @@ class CircuitSuite extends CircuitSimulator with FunSuite {
     assert(out1.getSignal === false, "demux2 3")
     assert(out2.getSignal === true, "demux2 4")
   }
-
-//  def testDemux(controlWireCount: Int) {
-//    def findOutWireIdx(cIdx: Int, cSet: Boolean) = {
-//      (cIdx * 2) + (if (cSet) 0 else 1)
-//    }
-//
-//    val cs = List.fill(controlWireCount)(new Wire)
-//    val os = List.fill(math.pow(2, controlWireCount).toInt)(new Wire)
-//    val in = new Wire
-//    demux(in, cs, os)
-//    in.setSignal(true)
-//
-//    for ((c, i) <- cs.view.zipWithIndex) {
-//      c.setSignal(true)
-//      run
-//      assert(os(findOutWireIdx(i, c.getSignal)).getSignal === true, s"testDemux 1. controlWireCount = ${controlWireCount}")
-//
-//      c.setSignal(false)
-//      run
-//      assert(os(findOutWireIdx(i, c.getSignal)).getSignal === true, s"testDemux 2. controlWireCount = ${controlWireCount}")
-//    }
-//  }
 }
 
 
