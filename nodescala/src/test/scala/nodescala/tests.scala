@@ -34,6 +34,21 @@ class NodeScalaSuite extends FunSuite {
     }
   }
 
+  test("Now should return the result") {
+    val always = Future.always(517)
+    assert(always.now == 517)
+  }
+
+  test("Now should throw a NoSuchElementException") {
+    val never = Future.never[Int]
+    try {
+      never.now
+      assert(false)
+    } catch {
+      case t: NoSuchElementException => // ok!
+    }
+  }
+
   test("CancellationTokenSource should allow stopping the computation") {
     val cts = CancellationTokenSource()
     val ct = cts.cancellationToken
