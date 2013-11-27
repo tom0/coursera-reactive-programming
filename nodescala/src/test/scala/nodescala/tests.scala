@@ -49,6 +49,52 @@ class NodeScalaSuite extends FunSuite {
     }
   }
 
+  test("Any should return the result of the first completing Future") {
+    val futures = (1 to 3).map { x => Future { Thread.sleep(x * 1000); x; } }
+    val f = Future.any(futures.toList)
+    try {
+      val result = Await.result(f, 1500 milliseconds)
+      assert(result == 1)
+    } catch {
+      case t: Exception => assert(false)
+    }
+  }
+
+  test("Any should return the failure of the first failing Future") {
+    class ShizzleException extends Exception
+
+    val futures = (1 to 3).map { x => Future { Thread.sleep(x * 2000); throw new ShizzleException; } }
+    val f = Future.any(futures.toList)
+    try {
+      val result = Await.result(f, 3 seconds)
+      assert(false)
+    } catch {
+      case t: TimeoutException => assert(false)
+      case t: ShizzleException =>
+    }
+  }
+
+  test("All should return all values from a list of Futures") {
+    val f = Future.all((1 to 3).map { x => Future(x) }.toList)
+    try {
+      val result = Await.result(f, 1 seconds)
+      assert(result == List(1,2,3))
+    } catch {
+      case t: Exception => assert(false)
+    }
+  }
+
+  test("All should fail if one of the child Futures fails") {
+    class ShizzleException extends Exception
+    val f = Future.all((1 to 3).map { x => Future { if (x != 3) x else throw new ShizzleException }}.toList)
+    try {
+      Await.result(f, 1 seconds)
+      assert(false)
+    } catch {
+      case t: ShizzleException => assert(true)
+    }
+  }
+
   test("CancellationTokenSource should allow stopping the computation") {
     val cts = CancellationTokenSource()
     val ct = cts.cancellationToken
