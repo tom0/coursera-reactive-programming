@@ -95,6 +95,35 @@ class NodeScalaSuite extends FunSuite {
     }
   }
 
+  test("ContinueWith should return a new Future containing the result of cont") {
+    val stringVal = "Who cares about the input"
+
+    val newFuture = Future(5).continueWith(_ => stringVal)
+    val result = Await.result(newFuture, 1 seconds)
+    assert(result == stringVal)
+  }
+
+  test("ContinueWith should only invoke cont when the initial future completes") {
+    val stringVal = "Who cares about the input"
+
+    var contCalled = false
+    val firstFuture = Future {
+      Thread.sleep(1000)
+      5
+    }
+
+    val cont = (a: Future[Int]) => {
+      contCalled = true
+      stringVal
+    }
+
+    val secondFuture = firstFuture.continueWith(cont)
+    assert(!contCalled)
+
+    Await.result(secondFuture, 1 seconds)
+    assert(contCalled)
+  }
+
   test("CancellationTokenSource should allow stopping the computation") {
     val cts = CancellationTokenSource()
     val ct = cts.cancellationToken
