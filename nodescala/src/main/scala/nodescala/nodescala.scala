@@ -10,7 +10,7 @@ import scala.collection.JavaConversions._
 import java.util.concurrent.{Executor, ThreadPoolExecutor, TimeUnit, LinkedBlockingQueue}
 import com.sun.net.httpserver.{HttpExchange, HttpHandler, HttpServer}
 import java.net.InetSocketAddress
-import scala.util.Success
+import scala.util.{Try, Success}
 
 /** Contains utilities common to the NodeScala© framework.
  */
@@ -32,6 +32,7 @@ trait NodeScala {
    */
   private def respond(exchange: Exchange, token: CancellationToken, response: Response): Unit = {
     response.takeWhile(_ => token.nonCancelled).foreach(exchange.write)
+    exchange.close()
   }
 
   /** A server:
@@ -46,18 +47,17 @@ trait NodeScala {
    */
   def start(relativePath: String)(handler: Request => Response): Subscription = {
     val listener = createListener(relativePath)
-    Future.run(){ ct =>
-      Future {
-        if (!ct.isCancelled) {
-          listener.nextRequest() onComplete {
-            case Success((req, exc)) => {
-              start(relativePath)(handler)
-              respond(exc, ct, handler(req))
-            }
-          }
-        }
+    val listenerSub = listener.start()
+
+    def startInner(token: CancellationToken) = async {
+      while (!token.isCancelled) {
+        val (req, exc) = await(listener.nextRequest())
+        respond(exc, token, handler(req))
       }
     }
+
+    val futureSub = Future.run(){ ct => startInner(ct) }
+    Subscription(listenerSub, futureSub)
   }
 }
 
@@ -131,8 +131,10 @@ object NodeScala {
       val p = Promise[(Request, Exchange)]()
       createContext((exchange: Exchange) =>
       {
-        p.success(exchange.request, exchange)
-        removeContext()
+        p.complete(Try {
+          removeContext()
+          (exchange.request, exchange)
+        })
       })
       p.future
     }

@@ -29,7 +29,7 @@ object Main {
     // TO IMPLEMENT
     // 4. create a future that completes when either 10 seconds elapse
     //    or the user enters some text and presses ENTER
-    val terminationRequested: Future[String] = Future.any(List(userInterrupted))
+    val terminationRequested: Future[String] = Future.any(List(userInterrupted, timeOut))
 
     // TO IMPLEMENT
     // 5. unsubscribe from the server
@@ -42,10 +42,7 @@ object Main {
       case Failure(ex) => {
         println("Oh noes")
       }
-
     }
-
-    Await.ready(terminationRequested, Duration.Inf)
   }
 
 }
