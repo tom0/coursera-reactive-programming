@@ -7,7 +7,7 @@
     <file path="/SwingApi.scala" changelist="ce51100b-8488-408f-bf7c-3f2987cd1bbc" time="1386077229744" ignored="false" />
     <file path="/SwingApiTest.scala" changelist="ce51100b-8488-408f-bf7c-3f2987cd1bbc" time="1386065954436" ignored="false" />
     <file path="/ObservableEx.scala" changelist="ce51100b-8488-408f-bf7c-3f2987cd1bbc" time="1386068742476" ignored="false" />
-    <file path="/WikipediaApi.scala" changelist="ce51100b-8488-408f-bf7c-3f2987cd1bbc" time="1386072927107" ignored="false" />
+    <file path="/WikipediaApi.scala" changelist="ce51100b-8488-408f-bf7c-3f2987cd1bbc" time="1386079234164" ignored="false" />
     <file path="/WikipediaSuggest.scala" changelist="ce51100b-8488-408f-bf7c-3f2987cd1bbc" time="1386077450566" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -77,10 +77,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SwingApi.scala" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="SwingApi.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/suggestions/gui/SwingApi.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="82" column="32" selection-start="2312" selection-end="2312" vertical-scroll-proportion="0.6537037">
+            <state line="82" column="32" selection-start="2312" selection-end="2312" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -95,10 +95,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="WikipediaApi.scala" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="WikipediaApi.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/suggestions/gui/WikipediaApi.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="90" column="8" selection-start="3458" selection-end="3458" vertical-scroll-proportion="-45.72">
+            <state line="93" column="3" selection-start="3591" selection-end="3591" vertical-scroll-proportion="0.7029126">
               <folding />
             </state>
           </provider>
@@ -172,9 +172,9 @@
       <list>
         <option value="$PROJECT_DIR$/src/test/scala/suggestions/SwingApiTest.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/suggestions/observablex/ObservableEx.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/suggestions/gui/WikipediaApi.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/suggestions/gui/WikipediaSuggest.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/suggestions/gui/SwingApi.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/suggestions/gui/WikipediaApi.scala" />
       </list>
     </option>
   </component>
@@ -724,25 +724,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/suggestions/gui/WikipediaSuggest.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="126" column="7" selection-start="4281" selection-end="4281" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#33#75#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.ivy2/cache/com.netflix.rxjava/rxjava-scala/srcs/rxjava-scala-0.15.0-sources.jar!/rx/lang/scala/subscriptions/Subscription.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="64" column="6" selection-start="2131" selection-end="2131" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/suggestions/gui/WikipediaApi.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="90" column="8" selection-start="3458" selection-end="3458" vertical-scroll-proportion="-45.72">
           <folding />
         </state>
       </provider>
@@ -756,7 +740,23 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/suggestions/gui/SwingApi.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="82" column="32" selection-start="2312" selection-end="2312" vertical-scroll-proportion="0.6537037">
+        <state line="82" column="32" selection-start="2312" selection-end="2312" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/suggestions/gui/WikipediaSuggest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="126" column="7" selection-start="4281" selection-end="4281" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#33#75#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/suggestions/gui/WikipediaApi.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="93" column="3" selection-start="3591" selection-end="3591" vertical-scroll-proportion="0.7029126">
           <folding />
         </state>
       </provider>
