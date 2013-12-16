@@ -106,6 +106,7 @@ class BinaryTreeNode(val elem: Int, initiallyRemoved: Boolean) extends Actor {
   /** Handles `Operation` messages and `CopyTo` requests. */
   val normal: Receive = {
     case i @ Insert(actorRef, id, newElem) if newElem > elem => {
+      println("&&&&&&& Insert " + newElem) 
       if (subtrees.get(Right).nonEmpty) {
         subtrees.get(Right).get ! i
       } else {
@@ -115,6 +116,7 @@ class BinaryTreeNode(val elem: Int, initiallyRemoved: Boolean) extends Actor {
       }
     }
     case i @ Insert(actorRef, id, newElem) if newElem < elem => {
+      println("&&&&&&& Insert " + newElem) 
       if (subtrees.get(Left).nonEmpty) {
         subtrees.get(Left).get ! i
       } else {
@@ -124,6 +126,26 @@ class BinaryTreeNode(val elem: Int, initiallyRemoved: Boolean) extends Actor {
       }
     }
     case Insert(actorRef, id, newElem) => actorRef ! OperationFinished(id)
+    case Contains(actorRef, id, elemToCheck) if elemToCheck == elem => {
+      println("***** contains " + elemToCheck)
+      actorRef ! ContainsResult(id, true)
+    }
+    case c @ Contains(actorRef, id, elemToCheck) if elemToCheck < elem => {
+      println("***** contains " + elemToCheck)
+      if (subtrees.get(Left).nonEmpty) {
+        subtrees.get(Left).get ! c
+      } else {
+        actorRef ! ContainsResult(id, false)
+      }
+    }
+    case c @ Contains(actorRef, id, elemToCheck) if elemToCheck > elem => {
+      println("***** contains " + elemToCheck)
+      if (subtrees.get(Right).nonEmpty) {
+        subtrees.get(Right).get ! c
+      } else {
+        actorRef ! ContainsResult(id, false)
+      }
+    }
     case r @ Remove(actorRef, id, newElem) =>
     {
 
