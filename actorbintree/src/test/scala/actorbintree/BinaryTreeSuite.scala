@@ -77,7 +77,7 @@ class BinaryTreeSuite(_system: ActorSystem) extends TestKit(_system) with FunSui
       ContainsResult(id=50, false),
       ContainsResult(id=70, true),
       ContainsResult(id=80, false),
-      OperationFinished(id=100)     
+      OperationFinished(id=100)
       )
 
     verify(requester, ops, expectedReplies)

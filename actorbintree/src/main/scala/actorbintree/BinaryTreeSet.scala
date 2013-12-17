@@ -69,6 +69,7 @@ class BinaryTreeSet extends Actor {
   val normal: Receive = {
     case i @ Insert(_, _, _) => root ! i
     case c @ Contains(_, _, _) => root ! c
+    case r @ Remove(_, _, _) => root ! r
     case _ =>
   }
 
@@ -107,7 +108,6 @@ class BinaryTreeNode(val elem: Int, initiallyRemoved: Boolean) extends Actor {
   /** Handles `Operation` messages and `CopyTo` requests. */
   val normal: Receive = {
     case i @ Insert(actorRef, id, newElem) if newElem > elem => {
-      println("&&&&&&& Insert " + newElem) 
       if (subtrees.get(Right).nonEmpty) {
         subtrees.get(Right).get ! i
       } else {
@@ -117,7 +117,6 @@ class BinaryTreeNode(val elem: Int, initiallyRemoved: Boolean) extends Actor {
       }
     }
     case i @ Insert(actorRef, id, newElem) if newElem < elem => {
-      println("&&&&&&& Insert " + newElem) 
       if (subtrees.get(Left).nonEmpty) {
         subtrees.get(Left).get ! i
       } else {
@@ -126,32 +125,48 @@ class BinaryTreeNode(val elem: Int, initiallyRemoved: Boolean) extends Actor {
         actorRef ! OperationFinished(id)
       }
     }
-    case Insert(actorRef, id, newElem) => actorRef ! OperationFinished(id)
-    case Contains(actorRef, id, elemToCheck) if elemToCheck == elem => {
-      println("***** contains " + elemToCheck)
-      actorRef ! ContainsResult(id, true)
+    case Insert(actorRef, id, newElem) => {
+      removed = false
+      actorRef ! OperationFinished(id)
     }
     case c @ Contains(actorRef, id, elemToCheck) if elemToCheck < elem => {
-      println("***** contains " + elemToCheck)
       if (subtrees.get(Left).nonEmpty) {
         subtrees.get(Left).get ! c
       } else {
-        actorRef ! ContainsResult(id, false)
+        actorRef ! ContainsResult(id, result = false)
       }
     }
     case c @ Contains(actorRef, id, elemToCheck) if elemToCheck > elem => {
-      println("***** contains " + elemToCheck)
       if (subtrees.get(Right).nonEmpty) {
         subtrees.get(Right).get ! c
       } else {
-        actorRef ! ContainsResult(id, false)
+        actorRef ! ContainsResult(id, result = false)
       }
     }
-    case r @ Remove(actorRef, id, newElem) =>
-    {
-
+    case Contains(actorRef, id, _) => {
+      actorRef ! ContainsResult(id, !removed)
+    }
+    case r @ Remove(actorRef, id, elemToRemove) if elemToRemove != elem => {
+      val subTree = getCorrectSubtreeFor(elemToRemove)
+      if (subTree.nonEmpty) {
+        subTree.get ! r
+      } else {
+        actorRef ! OperationFinished(id)
+      }
+    }
+    case r @ Remove(actorRef, id, _) => {
+      removed = true
+      actorRef ! OperationFinished(id)
     }
     case _ =>
+  }
+
+  def getCorrectSubtreeFor(elemToCheck: Int): Option[ActorRef] = {
+    if (elemToCheck < elem) {
+      subtrees.get(Left)
+    } else if (elemToCheck > elem) {
+      subtrees.get(Right)
+    } else None
   }
 
   // optional
