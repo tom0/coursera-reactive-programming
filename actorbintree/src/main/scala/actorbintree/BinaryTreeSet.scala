@@ -57,11 +57,6 @@ class BinaryTreeSet extends Actor {
 
   def createRoot: ActorRef = context.actorOf(BinaryTreeNode.props(0, initiallyRemoved = true))
 
-  //  var root = createRoot
-
-  // optional
-  //  var pendingQueue = Queue.empty[Operation]
-
   // optional
   def receive = normal(createRoot)
 
@@ -89,7 +84,6 @@ class BinaryTreeSet extends Actor {
     case operation: Operation => {
       println("BinaryTreeSet: garbageCollecting Operation: " + operation)
       context.become(garbageCollecting(newRoot, oldRoot, pending :+ operation))
-      println("BinaryTreeSet: FINISHED garbageCollecting Operation: " + operation)
     }
     case CopyFinished => {
       println("BinaryTreeSet: garbageCollecting CopyFinished")
@@ -108,7 +102,6 @@ class BinaryTreeSet extends Actor {
     }
     case GC => // Ignore, as per the spec
   }
-
 }
 
 object BinaryTreeNode {
@@ -127,88 +120,81 @@ class BinaryTreeNode(val elem: Int, initiallyRemoved: Boolean) extends Actor {
   import BinaryTreeNode._
   import BinaryTreeSet._
 
-  var subtrees = Map[Position, ActorRef]()
-  var removed = initiallyRemoved
-
   // optional
-  def receive = normal
+  def receive = normal(Map[Position, ActorRef](), initiallyRemoved)
 
   // optional
   /** Handles `Operation` messages and `CopyTo` requests. */
-  val normal: Receive = {
-    case CopyTo(actorRef) => {
-      if (subtrees.isEmpty && removed) {
-        context.parent ! CopyFinished
+  def normal(subtrees: Map[Position, ActorRef], removed: Boolean): Receive = {
+
+    case msg => {
+      def getSubtreeFor(elemToCheck: Int): Option[ActorRef] = {
+        getPositionFor(elemToCheck).flatMap { pos =>
+          subtrees.get(pos)
+        }
       }
 
-      context.become(copying(subtrees.values.toSet, removed))
-      subtrees.foreach { case (_, tree) =>
-        tree ! CopyTo(actorRef)
+      def getPositionFor(elemToCheck: Int): Option[Position] = {
+        if (elemToCheck < elem) {
+          Some(Left)
+        } else if (elemToCheck > elem) {
+          Some(Right)
+        } else None
       }
-      if (!removed) {
-        actorRef ! Insert(self, elem, elem)
-      }
-    }
-    case i @ Insert(actorRef, id, newElem) if newElem > elem => {
-      if (subtrees.get(Right).nonEmpty) {
-        subtrees.get(Right).get ! i
-      } else {
-        val newActor = context.actorOf(Props(classOf[BinaryTreeNode], newElem, false))
-        subtrees = subtrees + { Right -> newActor }
-        actorRef ! OperationFinished(id)
-      }
-    }
-    case i @ Insert(actorRef, id, newElem) if newElem < elem => {
-      if (subtrees.get(Left).nonEmpty) {
-        subtrees.get(Left).get ! i
-      } else {
-        val newActor = context.actorOf(Props(classOf[BinaryTreeNode], newElem, false))
-        subtrees = subtrees + { Left -> newActor }
-        actorRef ! OperationFinished(id)
-      }
-    }
-    case Insert(actorRef, id, newElem) => {
-      removed = false
-      actorRef ! OperationFinished(id)
-    }
-    case c @ Contains(actorRef, id, elemToCheck) if elemToCheck < elem => {
-      if (subtrees.get(Left).nonEmpty) {
-        subtrees.get(Left).get ! c
-      } else {
-        actorRef ! ContainsResult(id, result = false)
-      }
-    }
-    case c @ Contains(actorRef, id, elemToCheck) if elemToCheck > elem => {
-      if (subtrees.get(Right).nonEmpty) {
-        subtrees.get(Right).get ! c
-      } else {
-        actorRef ! ContainsResult(id, result = false)
-      }
-    }
-    case Contains(actorRef, id, _) => {
-      actorRef ! ContainsResult(id, !removed)
-    }
-    case r @ Remove(actorRef, id, elemToRemove) if elemToRemove != elem => {
-      val subTree = getSubtreeFor(elemToRemove)
-      if (subTree.nonEmpty) {
-        subTree.get ! r
-      } else {
-        actorRef ! OperationFinished(id)
-      }
-    }
-    case r @ Remove(actorRef, id, _) => {
-      removed = true
-      actorRef ! OperationFinished(id)
-    }
-    case _ =>
-  }
 
-  def getSubtreeFor(elemToCheck: Int): Option[ActorRef] = {
-    if (elemToCheck < elem) {
-      subtrees.get(Left)
-    } else if (elemToCheck > elem) {
-      subtrees.get(Right)
-    } else None
+      msg match {
+        case CopyTo(actorRef) => {
+          if (subtrees.isEmpty && removed) {
+            context.parent ! CopyFinished
+          }
+
+          context.become(copying(subtrees.values.toSet, removed))
+          subtrees.foreach { case (_, tree) =>
+            tree ! CopyTo(actorRef)
+          }
+          if (!removed) {
+            actorRef ! Insert(self, elem, elem)
+          }
+        }
+        case i @ Insert(actorRef, id, newElem) if newElem != elem => {
+          val subTree = getSubtreeFor(newElem)
+          if (subTree.nonEmpty) {
+            subTree.get ! i
+          } else {
+            val newActor = context.actorOf(Props(classOf[BinaryTreeNode], newElem, false))
+            context.become(normal(subtrees + { getPositionFor(newElem).get -> newActor }, removed))
+            actorRef ! OperationFinished(id)
+          }
+        }
+        case Insert(actorRef, id, _) => {
+          context.become(normal(subtrees, removed = false))
+          actorRef ! OperationFinished(id)
+        }
+        case c @ Contains(actorRef, id, elemToCheck) if elemToCheck != elem => {
+          val subTree = getSubtreeFor(elemToCheck)
+          if (subTree.nonEmpty) {
+            subTree.get ! c
+          } else {
+            actorRef ! ContainsResult(id, result = false)
+          }
+        }
+        case Contains(actorRef, id, _) => {
+          actorRef ! ContainsResult(id, !removed)
+        }
+        case r @ Remove(actorRef, id, elemToRemove) if elemToRemove != elem => {
+          val subTree = getSubtreeFor(elemToRemove)
+          if (subTree.nonEmpty) {
+            subTree.get ! r
+          } else {
+            actorRef ! OperationFinished(id)
+          }
+        }
+        case r @ Remove(actorRef, id, _) => {
+          context.become(normal(subtrees, removed = true))
+          actorRef ! OperationFinished(id)
+        }
+      }
+    }
   }
 
   // optional
