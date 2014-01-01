@@ -13,6 +13,7 @@ import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy
 import akka.util.Timeout
 import scala.language.postfixOps
+import akka.event.LoggingReceive
 
 object Replica {
   sealed trait Operation {
@@ -51,6 +52,8 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
 
   implicit val timeout = Timeout(1 second)
 
+  arbiter ! Join
+
   def receive = {
     // TODO: We have to install a supervisor strategy on the persistence actor, because
     // TODO: it is designed to fail periodically.
@@ -79,19 +82,38 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
         removedReps.foreach { removedRep => secondaries = secondaries - removedRep }
       }
       replicators = secondaries.values.toSet
+    case Insert(key, value, id) =>
+      kv += key -> value
+      sender ! OperationAck(id)
+    case Remove(key, id) =>
+      kv = kv - key
+      sender ! OperationAck(id)
+    case Get(key, id) =>
+      sender ! GetResult(key, kv.get(key), id)
   }
 
   /* TODO Behavior for the replica role. */
-  def replica(expectedSeq: Long, persistenceActor: ActorRef): Receive = {
+  def replica(expectedSeq: Long, persistenceActor: ActorRef): Receive = LoggingReceive {
     case Snapshot(_, _, seq) if seq > expectedSeq => // Do nothing
     case Snapshot(key, _, seq) if seq < expectedSeq =>
       sender ! SnapshotAck(key, seq)
       context.become(replica(getNextSeq(expectedSeq, seq), persistenceActor))
-    case Snapshot(key, value, seq) =>
+    case Snapshot(key, Some(value), seq) =>
       // TODO: Need an implicit timeout. What is the value supposed to be?
-      (persistenceActor ? Persist(key, value, seq)).mapTo[Persisted]
-        .map { case Persisted(k, id) => SnapshotAck(k, id) }
-        .pipeTo(sender)
+      kv += key -> value
+      sender ! SnapshotAck(key, seq)
+
+//      (persistenceActor ? Persist(key, value, seq)).mapTo[Persisted]
+//        .map { case Persisted(k, id) => SnapshotAck(k, id) }
+//        .pipeTo(sender)
       context.become(replica(getNextSeq(expectedSeq, seq), persistenceActor))
+    case Snapshot(key, None, seq) =>
+      kv -= key
+
+      // TODO: Need an implicit timeout. What is the value supposed to be?
+      sender ! SnapshotAck(key, seq)
+      context.become(replica(getNextSeq(expectedSeq, seq), persistenceActor))
+    case Get(key, id) =>
+      sender ! GetResult(key, kv.get(key), id)
   }
 }

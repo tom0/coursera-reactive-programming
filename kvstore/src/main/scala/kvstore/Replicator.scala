@@ -36,16 +36,22 @@ class Replicator(val replica: ActorRef) extends Actor {
     ret
   }
 
-  // TODO:
-  // TODO: The replicator is supposed to resend ever 100ms. How
-  // TODO: to achieve this?
-  // TODO:
-  def receive: Receive = {
-    case Replicate(key, Some(value), id) => // Insert
-      // TODO: reply with Replicated
-    case Replicate(key, None, id) => // Remove
-      // TODO: reply with Replicated
-    case _ =>
+  context.system.scheduler.schedule(0.milliseconds, 100.milliseconds) {
+    acks foreach {
+      case (seq, (_, Replicate(k, v, id))) => replica ! Snapshot(k, v, seq)
+    }
   }
 
+  def receive: Receive = {
+    case r @ Replicate(key, value, id) =>
+      replica ! Snapshot(key, value, id)
+      val seq = nextSeq
+      acks += seq -> (sender, r)
+    case SnapshotAck(key, seq) =>
+      acks.get(seq).foreach {
+        case (originalSender, replicate) =>
+          acks -= seq
+          originalSender ! Replicated(replicate.key, replicate.id)
+      }
+  }
 }
