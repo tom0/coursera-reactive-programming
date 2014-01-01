@@ -12,6 +12,7 @@ import akka.actor.PoisonPill
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy
 import akka.util.Timeout
+import scala.language.postfixOps
 
 object Replica {
   sealed trait Operation {
@@ -28,6 +29,8 @@ object Replica {
   case class GetResult(key: String, valueOption: Option[String], id: Long) extends OperationReply
 
   def props(arbiter: ActorRef, persistenceProps: Props): Props = Props(new Replica(arbiter, persistenceProps))
+
+  def getNextSeq(currentSeq: Long, justAckedSeq: Long) = if (currentSeq > (justAckedSeq + 1)) currentSeq else justAckedSeq + 1
 }
 
 class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
@@ -46,19 +49,49 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
   // the current set of replicators
   var replicators = Set.empty[ActorRef]
 
+  implicit val timeout = Timeout(1 second)
+
   def receive = {
-    case JoinedPrimary   => context.become(leader)
-    case JoinedSecondary => context.become(replica)
+    // TODO: We have to install a supervisor strategy on the persistence actor, because
+    // TODO: it is designed to fail periodically.
+    case JoinedPrimary   => context.become(leader(context.actorOf(persistenceProps)))
+    case JoinedSecondary => context.become(replica(0L, context.actorOf(persistenceProps)))
   }
 
   /* TODO Behavior for  the leader role. */
-  val leader: Receive = {
-    case _ =>
+  def leader(persistenceActor: ActorRef): Receive = {
+    case Replicas(newReps) =>
+      // Not amazingly efficient...
+      val existingReps = secondaries.keys.toSet
+      val addedReps = newReps -- existingReps
+      val removedReps = existingReps -- newReps
+      if (addedReps.nonEmpty) {
+        secondaries = secondaries ++
+          (addedReps zip (addedReps map { _ =>
+            // TODO: Does this replicator need to be started in some way?
+            // TODO: The replicator needs to be told about all KVPs at this point,
+            // TODO: so that it's state is consistent with the rest of the system.
+            context.actorOf(Props[Replicator])
+          }))
+      }
+      if (removedReps.nonEmpty) {
+        // TODO: The removed replicators must be terminated
+        removedReps.foreach { removedRep => secondaries = secondaries - removedRep }
+      }
+      replicators = secondaries.values.toSet
   }
 
   /* TODO Behavior for the replica role. */
-  val replica: Receive = {
-    case _ =>
+  def replica(expectedSeq: Long, persistenceActor: ActorRef): Receive = {
+    case Snapshot(_, _, seq) if seq > expectedSeq => // Do nothing
+    case Snapshot(key, _, seq) if seq < expectedSeq =>
+      sender ! SnapshotAck(key, seq)
+      context.become(replica(getNextSeq(expectedSeq, seq), persistenceActor))
+    case Snapshot(key, value, seq) =>
+      // TODO: Need an implicit timeout. What is the value supposed to be?
+      (persistenceActor ? Persist(key, value, seq)).mapTo[Persisted]
+        .map { case Persisted(k, id) => SnapshotAck(k, id) }
+        .pipeTo(sender)
+      context.become(replica(getNextSeq(expectedSeq, seq), persistenceActor))
   }
-
 }

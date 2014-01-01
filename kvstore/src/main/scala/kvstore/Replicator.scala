@@ -35,9 +35,16 @@ class Replicator(val replica: ActorRef) extends Actor {
     _seqCounter += 1
     ret
   }
-  
-  /* TODO Behavior for the Replicator. */
+
+  // TODO:
+  // TODO: The replicator is supposed to resend ever 100ms. How
+  // TODO: to achieve this?
+  // TODO:
   def receive: Receive = {
+    case Replicate(key, Some(value), id) => // Insert
+      // TODO: reply with Replicated
+    case Replicate(key, None, id) => // Remove
+      // TODO: reply with Replicated
     case _ =>
   }
 
