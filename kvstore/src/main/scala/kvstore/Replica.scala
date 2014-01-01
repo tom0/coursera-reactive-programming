@@ -52,8 +52,6 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
 
   var persists = Map.empty[Long, (ActorRef, Persist)]
 
-  implicit val timeout = Timeout(1 second)
-
   val persistenceActor = context.actorOf(persistenceProps)
 
   context.system.scheduler.schedule(0 milliseconds, 100 milliseconds) {
@@ -65,14 +63,12 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
   arbiter ! Join
 
   def receive = {
-    // TODO: We have to install a supervisor strategy on the persistence actor, because
-    // TODO: it is designed to fail periodically.
     case JoinedPrimary   => context.become(leader)
     case JoinedSecondary => context.become(replica(0L))
   }
 
   /* TODO Behavior for  the leader role. */
-  val leader: Receive = {
+  def leader(replicationsInProgress: Map[Long, (ActorRef, Set[ActorRef])]): Receive = {
     case Replicas(newReps) =>
       // Not amazingly efficient...
       val existingReps = secondaries.keys.toSet
@@ -94,12 +90,32 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
       replicators = secondaries.values.toSet
     case Insert(key, value, id) =>
       kv += key -> value
-      sender ! OperationAck(id)
+      persist(id, Persist(key, Some(value), id), sender)
     case Remove(key, id) =>
       kv = kv - key
-      sender ! OperationAck(id)
+      persist(id, Persist(key, None, id), sender)
     case Get(key, id) =>
       sender ! GetResult(key, kv.get(key), id)
+    case Persisted(key, id) =>
+      persists.get(id).foreach {
+        case (originalSender, _) =>
+          persists -= id
+
+          originalSender ! OperationAck(id)
+      }
+    case Replicated(key, id) =>
+      replicationsInProgress.get(id).foreach {
+        case (s, replicatorActors) =>
+          val replicatorsStillWaitingFor = replicatorActors - sender
+          if (replicatorsStillWaitingFor.isEmpty) {
+            context.become(leader(replicationsInProgress - ))
+            if (!persists.contains(id)) {
+              s ! OperationAck(id)
+            }
+          } else {
+            context.become(leader(replicationsInProgress + (id -> (s, replicatorsStillWaitingFor))))
+          }
+      }
   }
 
   /* TODO Behavior for the replica role. */
@@ -110,16 +126,12 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
       context.become(replica(getNextSeq(expectedSeq, seq)))
     case Snapshot(key, Some(value), seq) =>
       kv += key -> value
-      val persist = Persist(key, Some(value), seq)
-      persists += seq -> (sender, persist)
-      persistenceActor ! persist
       context.become(replica(getNextSeq(expectedSeq, seq)))
+      persist(seq, Persist(key, Some(value), seq), sender)
     case Snapshot(key, None, seq) =>
       kv -= key
-      val persist = Persist(key, None, seq)
-      persists += seq -> (sender, persist)
-      persistenceActor ! persist
       context.become(replica(getNextSeq(expectedSeq, seq)))
+      persist(seq, Persist(key, None, seq), sender)
     case Get(key, id) =>
       sender ! GetResult(key, kv.get(key), id)
     case Persisted(key, id) =>
@@ -128,5 +140,19 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
           persists -= id
           originalSender ! SnapshotAck(key, id)
       }
+  }
+
+  def persist(id: Long, persist: Persist, s: ActorRef) {
+    persists += id -> (s, persist)
+    persistenceActor ! persist
+
+    // If nothing is heard from the persistenceActor within
+    // a second, then fail.
+    context.system.scheduler.scheduleOnce(1 second) {
+      if (persists.contains(id)) {
+        persists -= id
+        s ! OperationFailed(id)
+      }
+    }
   }
 }

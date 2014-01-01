@@ -4,8 +4,9 @@
     <list default="true" id="8df64278-058c-4f12-b256-07881709d98c" name="Default" comment="" />
     <ignored path="kvstore.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Replicator.scala" changelist="8df64278-058c-4f12-b256-07881709d98c" time="1388567054409" ignored="false" />
-    <file path="/Replica.scala" changelist="8df64278-058c-4f12-b256-07881709d98c" time="1388570656975" ignored="false" />
+    <file path="/Replicator.scala" changelist="8df64278-058c-4f12-b256-07881709d98c" time="1388574746602" ignored="false" />
+    <file path="/Replica.scala" changelist="8df64278-058c-4f12-b256-07881709d98c" time="1388576214755" ignored="false" />
+    <file path="/a.dummy" changelist="8df64278-058c-4f12-b256-07881709d98c" time="1388572805665" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,36 +74,6 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/kvstore/Replica.scala" line="117" class="kvstore.Replica" package="kvstore">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="REMOVE_AFTER_HIT" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="SUSPEND" value="true" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="true" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/kvstore/Replica.scala" line="111" class="kvstore.Replica" package="kvstore">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="REMOVE_AFTER_HIT" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="SUSPEND" value="true" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="true" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
       <breakpoint url="file://$PROJECT_DIR$/src/main/scala/kvstore/Persistence.scala" line="20" class="kvstore.Persistence" package="kvstore">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
@@ -131,9 +102,21 @@
       <file leaf-file-name="Replicator.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Replicator.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="13" column="13" selection-start="394" selection-end="394" vertical-scroll-proportion="0.0">
+            <state line="9" column="13" selection-start="194" selection-end="194" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="e#17#40#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Replica.scala" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Replica.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="110" column="59" selection-start="3971" selection-end="3971" vertical-scroll-proportion="0.67572814">
+              <folding>
+                <element signature="e#17#80#0" expanded="true" />
+                <element signature="e#1368#1384#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -148,13 +131,38 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Replica.scala" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Replica.scala">
+      <file leaf-file-name="Step5_PrimaryPersistenceSpec.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/kvstore/Step5_PrimaryPersistenceSpec.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="54" column="24" selection-start="1862" selection-end="1862" vertical-scroll-proportion="0.3475728">
-              <folding>
-                <element signature="e#17#80#0" expanded="true" />
-              </folding>
+            <state line="95" column="17" selection-start="3223" selection-end="3223" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Tools.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/kvstore/Tools.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="45" column="8" selection-start="1297" selection-end="1297" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Persistence.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Persistence.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="7" column="13" selection-start="159" selection-end="159" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Scheduler.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$USER_HOME$/.ivy2/cache/com.typesafe.akka/akka-actor_2.10/srcs/akka-actor_2.10-2.2.3-sources.jar!/akka/actor/Scheduler.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="75" column="12" selection-start="2904" selection-end="2904" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -163,15 +171,6 @@
         <entry file="file://$PROJECT_DIR$/src/test/scala/kvstore/Step3_ReplicatorSpec.scala">
           <provider selected="true" editor-type-id="text-editor">
             <state line="12" column="6" selection-start="424" selection-end="444" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Actor.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar://$USER_HOME$/.ivy2/cache/com.typesafe.akka/akka-actor_2.10/srcs/akka-actor_2.10-2.2.3-sources.jar!/akka/actor/Actor.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="461" column="12" selection-start="17009" selection-end="17009" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -190,33 +189,6 @@
         <entry file="file://$PROJECT_DIR$/src/test/scala/kvstore/Step2_SecondarySpec.scala">
           <provider selected="true" editor-type-id="text-editor">
             <state line="50" column="26" selection-start="1641" selection-end="1641" vertical-scroll-proportion="-4.4">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PipeToSupport.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar://$USER_HOME$/.ivy2/cache/com.typesafe.akka/akka-actor_2.10/srcs/akka-actor_2.10-2.2.3-sources.jar!/akka/pattern/PipeToSupport.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="14" column="8" selection-start="438" selection-end="438" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Persistence.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Persistence.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="7" column="13" selection-start="159" selection-end="159" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Arbiter.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Arbiter.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="6" column="14" selection-start="119" selection-end="119" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -633,6 +605,7 @@
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="SBT Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -649,12 +622,11 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2469697" sideWeight="0.57240206" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2469697" sideWeight="0.57240206" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -723,34 +695,12 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Persistence.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="13" selection-start="232" selection-end="232" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Arbiter.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="13" selection-start="304" selection-end="304" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Replicator.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#17#40#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Replica.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="62" column="26" selection-start="2088" selection-end="2097" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="e#17#80#0" expanded="true" />
+            <element signature="e#1368#1384#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -811,22 +761,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Persistence.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="13" selection-start="159" selection-end="159" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Replicator.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="13" selection-start="394" selection-end="394" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#17#40#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/scala/kvstore/Step4_SecondaryPersistenceSpec.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="79" column="45" selection-start="2477" selection-end="2477" vertical-scroll-proportion="0.0">
@@ -834,11 +768,49 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$USER_HOME$/.ivy2/cache/com.typesafe.akka/akka-actor_2.10/srcs/akka-actor_2.10-2.2.3-sources.jar!/akka/actor/Scheduler.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="75" column="12" selection-start="2904" selection-end="2904" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Persistence.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="7" column="13" selection-start="159" selection-end="159" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/kvstore/Tools.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="45" column="8" selection-start="1297" selection-end="1297" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/kvstore/Step5_PrimaryPersistenceSpec.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="95" column="17" selection-start="3223" selection-end="3223" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Replicator.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="9" column="13" selection-start="194" selection-end="194" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#17#40#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Replica.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="54" column="24" selection-start="1862" selection-end="1862" vertical-scroll-proportion="0.3475728">
+        <state line="110" column="59" selection-start="3971" selection-end="3971" vertical-scroll-proportion="0.67572814">
           <folding>
             <element signature="e#17#80#0" expanded="true" />
+            <element signature="e#1368#1384#0" expanded="true" />
           </folding>
         </state>
       </provider>
