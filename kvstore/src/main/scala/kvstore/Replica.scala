@@ -63,13 +63,14 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
   arbiter ! Join
 
   def receive = {
-    case JoinedPrimary   => context.become(leader)
+    case JoinedPrimary   => context.become(leader(Map.empty[Long, (ActorRef, Set[ActorRef])]))
     case JoinedSecondary => context.become(replica(0L))
   }
 
   /* TODO Behavior for  the leader role. */
   def leader(replicationsInProgress: Map[Long, (ActorRef, Set[ActorRef])]): Receive = {
-    case Replicas(newReps) =>
+    case r @ Replicas(newReps) =>
+      println("Leader :: Got Replicas: " + r)
       // Not amazingly efficient...
       val existingReps = secondaries.keys.toSet
       val addedReps = newReps -- existingReps
@@ -80,7 +81,7 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
             // TODO: Does this replicator need to be started in some way?
             // TODO: The replicator needs to be told about all KVPs at this point,
             // TODO: so that it's state is consistent with the rest of the system.
-            context.actorOf(Props[Replicator])
+            context.actorOf(Props(new Replicator(self)))
           }))
       }
       if (removedReps.nonEmpty) {
@@ -91,24 +92,27 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
     case Insert(key, value, id) =>
       kv += key -> value
       persist(id, Persist(key, Some(value), id), sender)
+      context.become(leader(replicationsInProgress + (id -> replicate(Replicate(key, Some(value), id), replicators, sender))))
     case Remove(key, id) =>
       kv = kv - key
       persist(id, Persist(key, None, id), sender)
+      context.become(leader(replicationsInProgress + (id -> replicate(Replicate(key, None, id), replicators, sender))))
     case Get(key, id) =>
       sender ! GetResult(key, kv.get(key), id)
     case Persisted(key, id) =>
       persists.get(id).foreach {
         case (originalSender, _) =>
           persists -= id
-
-          originalSender ! OperationAck(id)
+          if (replicationsInProgress.get(id).isEmpty) originalSender ! OperationAck(id)
       }
-    case Replicated(key, id) =>
+    case r @ Replicated(key, id) =>
+      println("Leader :: Got Replicated: " + r)
       replicationsInProgress.get(id).foreach {
         case (s, replicatorActors) =>
           val replicatorsStillWaitingFor = replicatorActors - sender
           if (replicatorsStillWaitingFor.isEmpty) {
-            context.become(leader(replicationsInProgress - ))
+            // There are now no pending replications for this ID, so remove it.
+            context.become(leader(replicationsInProgress - id))
             if (!persists.contains(id)) {
               s ! OperationAck(id)
             }
@@ -120,29 +124,52 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
 
   /* TODO Behavior for the replica role. */
   def replica(expectedSeq: Long): Receive = LoggingReceive {
-    case Snapshot(_, _, seq) if seq > expectedSeq => // Do nothing
-    case Snapshot(key, _, seq) if seq < expectedSeq =>
+    case s @ Snapshot(_, _, seq) if seq > expectedSeq =>
+      println("Replica :: Got Snapshot [greater than expectedSeq - ignoring]: " + s)
+    case s @ Snapshot(key, _, seq) if seq < expectedSeq =>
+      println("Replica :: Got Snapshot [less than expectedSeq]: " + s)
       sender ! SnapshotAck(key, seq)
       context.become(replica(getNextSeq(expectedSeq, seq)))
-    case Snapshot(key, Some(value), seq) =>
+    case s @ Snapshot(key, Some(value), seq) =>
+      println("Replica :: Got Snapshot: " + s)
       kv += key -> value
       context.become(replica(getNextSeq(expectedSeq, seq)))
       persist(seq, Persist(key, Some(value), seq), sender)
-    case Snapshot(key, None, seq) =>
+    case s @ Snapshot(key, None, seq) =>
+      println("Replica :: Got Snapshot: " + s)
       kv -= key
       context.become(replica(getNextSeq(expectedSeq, seq)))
       persist(seq, Persist(key, None, seq), sender)
     case Get(key, id) =>
       sender ! GetResult(key, kv.get(key), id)
-    case Persisted(key, id) =>
+    case p @ Persisted(key, id) =>
+      println("Replica :: Got Persisted: " + p)
       persists.get(id).foreach {
         case (originalSender, _) =>
           persists -= id
-          originalSender ! SnapshotAck(key, id)
+          val s = SnapshotAck(key, id)
+          println("Replica :: Sending SnapshotAck: " + s)
+          originalSender ! s
       }
   }
 
+  def replicate(replicate: Replicate, replicators: Set[ActorRef], s: ActorRef) = {
+    println("Replica :: Replicating: " + replicate)
+    replicators.foreach { replicator =>
+      replicator ! replicate
+    }
+
+    // If complete replication is not complete in a second,
+    // then fail.
+//    context.system.scheduler.scheduleOnce(1 second) {
+//      s ! OperationFailed(id)
+//    }
+
+    (s, replicators)
+  }
+
   def persist(id: Long, persist: Persist, s: ActorRef) {
+    println("Replica :: Persisting: " + persist)
     persists += id -> (s, persist)
     persistenceActor ! persist
 

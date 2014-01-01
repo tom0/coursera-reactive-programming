@@ -45,14 +45,20 @@ class Replicator(val replica: ActorRef) extends Actor {
 
   def receive: Receive = {
     case r @ Replicate(key, value, id) =>
+      println("Replicator :: Got Replicate: " + r)
       val seq = nextSeq
-      replica ! Snapshot(key, value, seq)
+      val snapshot = Snapshot(key, value, seq)
+      println("Replicator :: Sending Snapshot: " + snapshot)
+      replica ! snapshot
       acks += seq -> (sender, r)
-    case SnapshotAck(key, seq) =>
+    case sa @ SnapshotAck(key, seq) =>
+      println("Replicator :: Got SnapshotAck: " + sa)
       acks.get(seq).foreach {
         case (originalSender, replicate) =>
           acks -= seq
-          originalSender ! Replicated(replicate.key, replicate.id)
+          val replicated = Replicated(replicate.key, replicate.id)
+          println("Replicator :: Sending Replicated: " + replicated)
+          originalSender ! replicated
       }
   }
 }
