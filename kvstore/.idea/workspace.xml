@@ -5,7 +5,7 @@
     <ignored path="kvstore.iws" />
     <ignored path=".idea/workspace.xml" />
     <file path="/Replicator.scala" changelist="8df64278-058c-4f12-b256-07881709d98c" time="1388567054409" ignored="false" />
-    <file path="/Replica.scala" changelist="8df64278-058c-4f12-b256-07881709d98c" time="1388564809908" ignored="false" />
+    <file path="/Replica.scala" changelist="8df64278-058c-4f12-b256-07881709d98c" time="1388570656975" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,6 +73,51 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/kvstore/Replica.scala" line="117" class="kvstore.Replica" package="kvstore">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="REMOVE_AFTER_HIT" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/kvstore/Replica.scala" line="111" class="kvstore.Replica" package="kvstore">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="REMOVE_AFTER_HIT" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/kvstore/Persistence.scala" line="20" class="kvstore.Persistence" package="kvstore">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="REMOVE_AFTER_HIT" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
     </line_breakpoints>
     <breakpoint_rules />
     <ui_properties />
@@ -86,25 +131,27 @@
       <file leaf-file-name="Replicator.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Replicator.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="56" column="1" selection-start="1614" selection-end="1614" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="13" column="13" selection-start="394" selection-end="394" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="e#17#40#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Step4_SecondaryPersistenceSpec.scala" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Step4_SecondaryPersistenceSpec.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/scala/kvstore/Step4_SecondaryPersistenceSpec.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="13" column="6" selection-start="334" selection-end="364" vertical-scroll-proportion="0.14945056">
+            <state line="79" column="45" selection-start="2477" selection-end="2477" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Replica.scala" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="Replica.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Replica.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="100" column="43" selection-start="3808" selection-end="3808" vertical-scroll-proportion="-4.64">
+            <state line="54" column="24" selection-start="1862" selection-end="1862" vertical-scroll-proportion="0.3475728">
               <folding>
                 <element signature="e#17#80#0" expanded="true" />
               </folding>
@@ -160,7 +207,7 @@
       <file leaf-file-name="Persistence.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Persistence.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="8" column="13" selection-start="232" selection-end="232" vertical-scroll-proportion="0.0">
+            <state line="7" column="13" selection-start="159" selection-end="159" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -185,8 +232,8 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/main/scala/kvstore/Replica.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/kvstore/Replicator.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/kvstore/Replica.scala" />
       </list>
     </option>
   </component>
@@ -396,7 +443,7 @@
     <property name="GoToClass.includeLibraries" value="false" />
     <property name="dynamic.classpath" value="false" />
   </component>
-  <component name="RunManager" selected="ScalaTest.Step2_SecondarySpec.case2: Secondary (in isolation) must handle Snapshots">
+  <component name="RunManager" selected="ScalaTest.Step4_SecondaryPersistenceSpec.case2: Secondary should retry persistence in every 100 milliseconds">
     <configuration default="false" name="Step2_SecondarySpec.case2: Secondary (in isolation) must handle Snapshots" type="ScalaTestRunConfiguration" factoryName="ScalaTest" temporary="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
         <pattern>
@@ -413,6 +460,32 @@
       <setting name="workingDirectory" value="$PROJECT_DIR$" />
       <setting name="searchForTest" value="Across module dependencies" />
       <setting name="testName" value="case2: Secondary (in isolation) must handle Snapshots" />
+      <setting name="testKind" value="Test name" />
+      <setting name="showProgressMessages" value="true" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <ConfigurationWrapper RunnerId="Debug" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Step4_SecondaryPersistenceSpec.case2: Secondary should retry persistence in every 100 milliseconds" type="ScalaTestRunConfiguration" factoryName="ScalaTest" temporary="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="kvstore.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <extension name="scalaCoverage" />
+      <module name="assignment" />
+      <setting name="path" value="kvstore.Step4_SecondaryPersistenceSpec" />
+      <setting name="package" value="" />
+      <setting name="vmparams" value="" />
+      <setting name="params" value="" />
+      <setting name="workingDirectory" value="$PROJECT_DIR$" />
+      <setting name="searchForTest" value="Across module dependencies" />
+      <setting name="testName" value="case2: Secondary should retry persistence in every 100 milliseconds" />
       <setting name="testKind" value="Test name" />
       <setting name="showProgressMessages" value="true" />
       <RunnerSettings RunnerId="Debug">
@@ -529,12 +602,14 @@
       <setting name="showProgressMessages" value="true" />
       <method />
     </configuration>
-    <list size="1">
+    <list size="2">
       <item index="0" class="java.lang.String" itemvalue="ScalaTest.Step2_SecondarySpec.case2: Secondary (in isolation) must handle Snapshots" />
+      <item index="1" class="java.lang.String" itemvalue="ScalaTest.Step4_SecondaryPersistenceSpec.case2: Secondary should retry persistence in every 100 milliseconds" />
     </list>
     <recent_temporary>
-      <list size="1">
-        <item index="0" class="java.lang.String" itemvalue="ScalaTest.Step2_SecondarySpec.case2: Secondary (in isolation) must handle Snapshots" />
+      <list size="2">
+        <item index="0" class="java.lang.String" itemvalue="ScalaTest.Step4_SecondaryPersistenceSpec.case2: Secondary should retry persistence in every 100 milliseconds" />
+        <item index="1" class="java.lang.String" itemvalue="ScalaTest.Step2_SecondarySpec.case2: Secondary (in isolation) must handle Snapshots" />
       </list>
     </recent_temporary>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
@@ -561,20 +636,20 @@
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="SBT Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.14480409" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.22998296" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32879046" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="CDI" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="CDI" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32954547" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2469697" sideWeight="0.85519594" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2469697" sideWeight="0.57240206" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -665,7 +740,9 @@
     <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Replicator.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="e#17#40#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -688,13 +765,6 @@
     <entry file="jar://$USER_HOME$/.ivy2/cache/com.typesafe.akka/akka-actor_2.10/srcs/akka-actor_2.10-2.2.3-sources.jar!/akka/pattern/AskSupport.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="145" column="6" selection-start="5854" selection-end="5854" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Persistence.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="13" selection-start="232" selection-end="232" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -741,26 +811,35 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Replica.scala">
+    <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Persistence.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="100" column="43" selection-start="3808" selection-end="3808" vertical-scroll-proportion="-4.64">
-          <folding>
-            <element signature="e#17#80#0" expanded="true" />
-          </folding>
+        <state line="7" column="13" selection-start="159" selection-end="159" vertical-scroll-proportion="0.0">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Replicator.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="1" selection-start="1614" selection-end="1614" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="13" column="13" selection-start="394" selection-end="394" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#17#40#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/scala/kvstore/Step4_SecondaryPersistenceSpec.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="6" selection-start="334" selection-end="364" vertical-scroll-proportion="0.14945056">
+        <state line="79" column="45" selection-start="2477" selection-end="2477" vertical-scroll-proportion="0.0">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/kvstore/Replica.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="54" column="24" selection-start="1862" selection-end="1862" vertical-scroll-proportion="0.3475728">
+          <folding>
+            <element signature="e#17#80#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

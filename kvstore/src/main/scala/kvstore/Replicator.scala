@@ -4,6 +4,7 @@ import akka.actor.Props
 import akka.actor.Actor
 import akka.actor.ActorRef
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 object Replicator {
   case class Replicate(key: String, valueOption: Option[String], id: Long)
@@ -36,7 +37,7 @@ class Replicator(val replica: ActorRef) extends Actor {
     ret
   }
 
-  context.system.scheduler.schedule(0.milliseconds, 100.milliseconds) {
+  context.system.scheduler.schedule(0 milliseconds, 100 milliseconds) {
     acks foreach {
       case (seq, (_, Replicate(k, v, id))) => replica ! Snapshot(k, v, seq)
     }

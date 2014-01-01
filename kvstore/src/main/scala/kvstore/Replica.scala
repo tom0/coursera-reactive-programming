@@ -50,19 +50,29 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
   // the current set of replicators
   var replicators = Set.empty[ActorRef]
 
+  var persists = Map.empty[Long, (ActorRef, Persist)]
+
   implicit val timeout = Timeout(1 second)
+
+  val persistenceActor = context.actorOf(persistenceProps)
+
+  context.system.scheduler.schedule(0 milliseconds, 100 milliseconds) {
+    persists foreach {
+      case (id, (_, persist)) => persistenceActor ! persist
+    }
+  }
 
   arbiter ! Join
 
   def receive = {
     // TODO: We have to install a supervisor strategy on the persistence actor, because
     // TODO: it is designed to fail periodically.
-    case JoinedPrimary   => context.become(leader(context.actorOf(persistenceProps)))
-    case JoinedSecondary => context.become(replica(0L, context.actorOf(persistenceProps)))
+    case JoinedPrimary   => context.become(leader)
+    case JoinedSecondary => context.become(replica(0L))
   }
 
   /* TODO Behavior for  the leader role. */
-  def leader(persistenceActor: ActorRef): Receive = {
+  val leader: Receive = {
     case Replicas(newReps) =>
       // Not amazingly efficient...
       val existingReps = secondaries.keys.toSet
@@ -93,27 +103,30 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
   }
 
   /* TODO Behavior for the replica role. */
-  def replica(expectedSeq: Long, persistenceActor: ActorRef): Receive = LoggingReceive {
+  def replica(expectedSeq: Long): Receive = LoggingReceive {
     case Snapshot(_, _, seq) if seq > expectedSeq => // Do nothing
     case Snapshot(key, _, seq) if seq < expectedSeq =>
       sender ! SnapshotAck(key, seq)
-      context.become(replica(getNextSeq(expectedSeq, seq), persistenceActor))
+      context.become(replica(getNextSeq(expectedSeq, seq)))
     case Snapshot(key, Some(value), seq) =>
-      // TODO: Need an implicit timeout. What is the value supposed to be?
       kv += key -> value
-      sender ! SnapshotAck(key, seq)
-
-//      (persistenceActor ? Persist(key, value, seq)).mapTo[Persisted]
-//        .map { case Persisted(k, id) => SnapshotAck(k, id) }
-//        .pipeTo(sender)
-      context.become(replica(getNextSeq(expectedSeq, seq), persistenceActor))
+      val persist = Persist(key, Some(value), seq)
+      persists += seq -> (sender, persist)
+      persistenceActor ! persist
+      context.become(replica(getNextSeq(expectedSeq, seq)))
     case Snapshot(key, None, seq) =>
       kv -= key
-
-      // TODO: Need an implicit timeout. What is the value supposed to be?
-      sender ! SnapshotAck(key, seq)
-      context.become(replica(getNextSeq(expectedSeq, seq), persistenceActor))
+      val persist = Persist(key, None, seq)
+      persists += seq -> (sender, persist)
+      persistenceActor ! persist
+      context.become(replica(getNextSeq(expectedSeq, seq)))
     case Get(key, id) =>
       sender ! GetResult(key, kv.get(key), id)
+    case Persisted(key, id) =>
+      persists.get(id).foreach {
+        case (originalSender, _) =>
+          persists -= id
+          originalSender ! SnapshotAck(key, id)
+      }
   }
 }
