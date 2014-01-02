@@ -84,15 +84,48 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
       println("\tAdded count: " + addedReps.size)
       println("\tRemvd count: " + removedReps.size)
       if (addedReps.nonEmpty) {
+        var _seqCounter = 0L
+        def nextSeq = {
+          val ret = _seqCounter
+            _seqCounter += 1
+            ret
+        }
         addedReps.filter(addedRep => addedRep != self).foreach { addedRep =>
           // TODO: The replicator needs to be told about all KVPs at this point,
           // TODO: so that it's state is consistent with the rest of the system.
-          secondaries += (addedRep -> context.actorOf(Replicator.props(addedRep)))
+          val newReplicator = context.actorOf(Replicator.props(addedRep))
+          secondaries += (addedRep -> newReplicator)
+          
+          kv foreach { 
+            case (key, value) => 
+              val id = nextSeq
+              replicate(id, Replicate(key, Some(value), id), Set(newReplicator), sender)
+          }
         }
       }
       if (removedReps.nonEmpty) {
-        // TODO: The removed replicators must be terminated
-        removedReps.foreach { removedRep => secondaries = secondaries - removedRep }
+        // TODO: If the primary is waiting for replication acks for the secondary we
+        // TODO: are removing, then we need to stop waiting and ack the operation if appropriate.
+
+        removedReps.foreach { removedRep => 
+          secondaries.get(removedRep).foreach { replicator => 
+            // For this replicator, if the primary is waiting for it for
+            // a replication operation, remove the wait and ack if appropriate.
+            persists.filter { _._2._3.contains(replicator) }.foreach { case (id, (originalSender, ps, reps)) => 
+              val replicatorsStillWaitingFor = reps - replicator
+              if (replicatorsStillWaitingFor.isEmpty && ps.isEmpty) {
+                // Not waiting for any replicators or persistence, so ack.
+                persists -= id
+                originalSender ! OperationAck(id)
+              } else {
+                persists += id -> (originalSender, ps, replicatorsStillWaitingFor)
+              }
+            }
+
+            context.stop(replicator) 
+          }
+          secondaries = secondaries - removedRep 
+        }
       }
       println("Leader :: After add/remove. secondaries: " + secondaries)
       replicators = secondaries.values.toSet
