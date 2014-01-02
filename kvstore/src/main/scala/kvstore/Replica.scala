@@ -54,7 +54,7 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
 
   val persistenceActor = context.actorOf(persistenceProps)
 
-  context.system.scheduler.schedule(0 milliseconds, 100 milliseconds) {
+  context.system.scheduler.schedule(0 milliseconds, 10 milliseconds) {
     persists foreach {
       case (id, (_, persist, _)) => persist.foreach { p =>
         println("PersistRetry :: Sending Persist: " + p)
@@ -99,6 +99,7 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
           kv foreach { 
             case (key, value) => 
               val id = nextSeq
+              
               replicate(id, Replicate(key, Some(value), id), Set(newReplicator), sender)
           }
         }
@@ -207,7 +208,8 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
       val p = Persist(key, None, seq)
       println("Replica :: Persisting: " + p)
       persist(seq, p, sender)
-    case Get(key, id) =>
+    case g @ Get(key, id) =>
+      println("Replica :: Got Get: " + g)
       sender ! GetResult(key, kv.get(key), id)
     case p @ Persisted(key, id) =>
       println("Replica :: Got Persisted: " + p)
