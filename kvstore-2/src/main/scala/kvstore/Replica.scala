@@ -1,19 +1,23 @@
 package kvstore
 
-import akka.actor.{ OneForOneStrategy, Props, ActorRef, Actor }
+import akka.actor._
 import kvstore.Arbiter._
-import scala.collection.immutable.Queue
-import akka.actor.SupervisorStrategy.Restart
-import scala.annotation.tailrec
-import akka.pattern.{ ask, pipe }
-import akka.actor.Terminated
 import scala.concurrent.duration._
-import akka.actor.PoisonPill
-import akka.actor.OneForOneStrategy
-import akka.actor.SupervisorStrategy
-import akka.util.Timeout
+import scala.language.postfixOps
+import kvstore.Replicator.{SnapshotAck, Snapshot}
+import kvstore.Persistence.{Persisted, Persist}
+import kvstore.Replica._
+import kvstore.Replica.Remove
+import kvstore.Persistence.Persist
+import kvstore.Replicator.Snapshot
+import kvstore.Replica.Get
+import kvstore.Replicator.SnapshotAck
+import kvstore.Replica.GetResult
+import kvstore.Replica.Insert
 
 object Replica {
+  val PersistDuration: Duration = 1 second
+
   sealed trait Operation {
     def key: String
     def id: Long
@@ -34,11 +38,58 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
   import Replica._
   import Replicator._
   import Persistence._
-  import context.dispatcher
 
-  /*
-   * The contents of this actor is just a suggestion, you can implement it in any way you like.
-   */
+  arbiter ! Join
+
+  def receive = {
+    case JoinedPrimary   => context.become(subContracted(context.actorOf(Props(new PrimaryReplica(persistenceProps)))))
+    case JoinedSecondary => context.become(subContracted(context.actorOf(Props(new SecondaryReplica(persistenceProps)))))
+  }
+
+  def subContracted(subContractor: ActorRef): Receive = {
+    case m => subContractor forward m
+  }
+}
+
+class PrimaryReplica(persistenceProps: Props) extends Actor {
+  val persistenceActor = context.actorOf(persistenceProps)
+  context.become(receive())
+
+  def receive: Receive = {
+    case _ =>
+  }
+
+  def receive(kv: Map[String, String] = Map.empty[String, String]): Receive = {
+    case Insert(key, value, id) =>
+      val persist = Persist(key, Some(value), id)
+      val persister = context.actorOf(Props(new Persister(persist, persistenceActor)))
+      context.become(receivePersist(kv, sender, persister, persist))
+    case Remove(key, id) =>
+      val persist = Persist(key, None, id)
+      val persister = context.actorOf(Props(new Persister(persist, persistenceActor)))
+      context.become(receivePersist(kv, sender, persister, persist))
+    case Get(key, id) => sender ! GetResult(key, kv.get(key), id)
+    case _ =>
+  }
+
+  def receivePersist(kv: Map[String, String], client: ActorRef, persister: ActorRef, persist: Persist): Receive = {
+    case Persister.PersistComplete(key, seq) =>
+      val newKv =
+        if (persist.valueOption.isDefined)
+          kv + (persist.key -> persist.valueOption.get)
+        else
+          kv - persist.key
+      context.become(receive(newKv))
+      client ! OperationAck(seq)
+    case Persister.PersistFailed(key, seq) =>
+      context.become(receive(kv))
+      client ! OperationFailed(seq)
+  }
+}
+
+class SecondaryReplica(persistenceProps: Props) extends Actor {
+  val persistenceActor = context.actorOf(persistenceProps)
+  context.become(receive())
 
   var _expectedSeqCounter = 0L
   def nextExpectedSeq = {
@@ -46,40 +97,34 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
     _expectedSeqCounter += 1
     ret
   }
-  
-  // a map from secondary replicas to replicators
-  var secondaries = Map.empty[ActorRef, ActorRef]
-  // the current set of replicators
-  var replicators = Set.empty[ActorRef]
 
-  arbiter ! Join
-
-  def receive = {
-    case JoinedPrimary   => context.become(leader())
-    case JoinedSecondary => context.become(replica())
-  }
-
-  def leader(kv: Map[String, String] = Map.empty[String, String]): Receive = {
-    case Insert(key, value, id) =>
-      context.become(leader(kv + (key -> value)))
-      sender ! OperationAck(id)
-    case Remove(key, id) =>
-      context.become(leader(kv - key))
-      sender ! OperationAck(id)
-    case Get(key, id) => sender ! GetResult(key, kv.get(key), id)
+  def receive: Receive = {
     case _ =>
   }
 
-  /* TODO Behavior for the replica role. */
-  def replica(kv: Map[String, String] = Map.empty[String, String], expectedSeq: Long = nextExpectedSeq): Receive = {
+  def receive(kv: Map[String, String] = Map.empty[String, String], expectedSeq: Long = nextExpectedSeq): Receive = {
     case Get(key, id) => sender ! GetResult(key, kv.get(key), id)
     case s @ Snapshot(key, valueOption, seq) if seq == expectedSeq =>
-      if (valueOption.isDefined)
-        context.become(replica(kv + (key -> valueOption.get)))
-      else
-        context.become(replica(kv - key))
-      sender ! SnapshotAck(key, seq)
+      val persist = Persist(key, valueOption, seq)
+      val persister = context.actorOf(Props(new Persister(persist, persistenceActor)))
+      context.become(receivePersist(kv, sender, persister, persist))
     case Snapshot(key, _, seq) if seq < expectedSeq => sender ! SnapshotAck(key, seq)
     case _ =>
+  }
+
+  def receivePersist(kv: Map[String, String], client: ActorRef, persister: ActorRef, persist: Persist): Receive = {
+    case Persister.PersistComplete(key, id) =>
+      context.stop(persister)
+
+      val newKv =
+        if (persist.valueOption.isDefined)
+          kv + (persist.key -> persist.valueOption.get)
+        else
+          kv - persist.key
+      context.become(receive(newKv))
+      client ! SnapshotAck(key, id)
+    case Persister.PersistFailed =>
+      context.stop(persister)
+      context.become(receive(kv))
   }
 }

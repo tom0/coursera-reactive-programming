@@ -11,7 +11,7 @@ import scala.concurrent.duration._
 import Arbiter._
 import Persistence._
 
-class Step4_SecondaryPersistenceSpec extends TestKit(ActorSystem("Step4SecondaryPersistenceSpec"))
+  class Step4_SecondaryPersistenceSpec extends TestKit(ActorSystem("Step4SecondaryPersistenceSpec"))
   with FunSuite
   with BeforeAndAfterAll
   with ShouldMatchers
