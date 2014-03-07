@@ -22,21 +22,18 @@ class SecondaryReplica(persistenceProps: Props) extends Actor {
   def receive: Receive = { case _ => }
 
   def receive(kv: Map[String, String] = Map.empty[String, String],
-              pendingPersists: Map[Long, (ActorRef, ActorRef)] = Map.empty[Long, (ActorRef, ActorRef)],
+              pendingPersists: Map[Long, ActorRef] = Map.empty[Long, ActorRef],
               expectedSeq: Long): Receive = {
 
     case Get(key, id) =>
       sender ! GetResult(key, kv.get(key), id)
 
     case PersistComplete(key, id) if pendingPersists.contains(id) =>
-      val (client, persister) = pendingPersists.get(id).get
-      context.stop(persister)
+      val client = pendingPersists.get(id).get
       client ! SnapshotAck(key, id)
       context.become(receive(kv, pendingPersists - id, expectedSeq))
 
     case PersistFailed(key, id) if pendingPersists.contains(id) =>
-      val (_, persister) = pendingPersists.get(id).get
-      context.stop(persister)
       context.become(receive(kv, pendingPersists - id, expectedSeq))
 
     case Snapshot(key, valueOption, seq) if seq == expectedSeq =>
@@ -47,8 +44,8 @@ class SecondaryReplica(persistenceProps: Props) extends Actor {
           kv - key
 
       val persist = Persist(key, valueOption, seq)
-      val persister = context.actorOf(Props(new Persister(persist, persistenceActor)))
-      context.become(receive(newKv, pendingPersists + (seq -> (sender, persister)), nextExpectedSeq))
+      context.actorOf(Props(new Persister(persist, persistenceActor)), "Secondary_Persister" + seq)
+      context.become(receive(newKv, pendingPersists + (seq -> sender), nextExpectedSeq))
 
     case Snapshot(key, _, seq) if seq < expectedSeq =>
       sender ! SnapshotAck(key, seq)

@@ -39,7 +39,7 @@ class PrimaryReplica(persistenceProps: Props) extends Actor {
 
       val newKv = kv + (key -> value)
 
-      context.actorOf(Props(new Persister(new Persist(key, Some(value), replicateAndPersistId), persistenceActor)))
+      context.actorOf(Props(new Persister(new Persist(key, Some(value), replicateAndPersistId), persistenceActor)), "Insert_Persister" + replicateAndPersistId)
       val newPendingPersists = pendingPersists + replicateAndPersistId
 
       val newPendingReplications =
@@ -60,7 +60,7 @@ class PrimaryReplica(persistenceProps: Props) extends Actor {
 
       val newKv = kv - key
 
-      context.actorOf(Props(new Persister(new Persist(key, None, replicateAndPersistId), persistenceActor)))
+      context.actorOf(Props(new Persister(new Persist(key, None, replicateAndPersistId), persistenceActor)), "Remove_Persister" + replicateAndPersistId)
       val newPendingPersists = pendingPersists + replicateAndPersistId
 
       val newPendingReplications =

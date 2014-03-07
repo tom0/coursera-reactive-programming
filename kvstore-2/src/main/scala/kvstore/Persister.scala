@@ -1,32 +1,40 @@
 package kvstore
 
-import kvstore.Persistence.{Persisted, Persist}
-import akka.actor.{ReceiveTimeout, Props, Actor, ActorRef}
+import akka.actor._
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import akka.event.LoggingReceive
+import kvstore.Persistence.Persisted
+import kvstore.Persistence.Persist
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Persister {
   case class PersistFailed(key: String, id: Long)
   case class PersistComplete(key: String, id: Long)
+  private case class PersistTimeout()
 }
 
-class Persister(persist: Persist, persistenceActor: ActorRef, timeoutPeriod: Duration = 1 seconds) extends Actor {
+class Persister(persist: Persist, persistenceActor: ActorRef, timeoutPeriod: FiniteDuration = 1 seconds) extends Actor {
   import Persister._
 
-  context.setReceiveTimeout(timeoutPeriod)
+  context.system.scheduler.scheduleOnce(timeoutPeriod) {
+    self ! PersistTimeout
+  }
+
   val retryer = context.actorOf(Props(new Retryer(persistenceActor, persist)))
 
-  override def receive: Actor.Receive = LoggingReceive {
+  def receive: Actor.Receive = {
     case Persisted(key, id) =>
-      context.setReceiveTimeout(Duration.Undefined)
       context.stop(retryer)
       context.parent ! PersistComplete(key, id)
-      context.stop(self)
-    case ReceiveTimeout =>
-      context.setReceiveTimeout(Duration.Undefined)
+      context.become(dead)
+    case PersistTimeout =>
       context.stop(retryer)
       context.parent ! PersistFailed(persist.key, persist.id)
       context.stop(self)
+  }
+
+  def dead: Receive = {
+    case PersistTimeout => context.stop(self)
+    case _ =>
   }
 }

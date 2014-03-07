@@ -18,9 +18,7 @@ object Replicator {
 
 class Replicator(val replica: ActorRef) extends Actor {
   import Replicator._
-  import Replica._
-  import context.dispatcher
-  
+
   var _seqCounter = 0L
   def nextSeq = {
     val ret = _seqCounter
