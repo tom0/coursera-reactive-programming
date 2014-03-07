@@ -15,13 +15,6 @@ import kvstore.GlobalReplicator.{GlobalReplicationTimedOut, GlobalReplicationSuc
 
 class PrimaryReplica(persistenceProps: Props) extends Actor {
 
-  var replicateAndPersistId = 0L
-  def nextReplicateAndPersistId = {
-    val ret = replicateAndPersistId
-    replicateAndPersistId += 1
-    ret
-  }
-
   val persistenceActor = context.actorOf(persistenceProps)
   context.become(properReceive())
 
@@ -32,11 +25,10 @@ class PrimaryReplica(persistenceProps: Props) extends Actor {
     replicasAndReplicators: Map[ActorRef, ActorRef] = Map.empty[ActorRef, ActorRef], // Replica -> Replicator
     pendingPersists: Set[Long] = Set.empty[Long],
     pendingReplications: Map[Long, ActorRef] = Map.empty[Long, ActorRef], // ReplicateAndPersistId -> GlobalReplicator
-    originalClients: Map[Long, (Long, ActorRef)] = Map.empty[Long, (Long, ActorRef)]): akka.actor.Actor.Receive = {
+    originalClients: Map[Long, (Long, ActorRef)] = Map.empty[Long, (Long, ActorRef)],
+    replicateAndPersistId: Long = 0): akka.actor.Actor.Receive = {
 
     case Insert(key, value, id) =>
-      val replicateAndPersistId = nextReplicateAndPersistId
-
       val newKv = kv + (key -> value)
 
       context.actorOf(Props(new Persister(new Persist(key, Some(value), replicateAndPersistId), persistenceActor)), "Insert_Persister" + replicateAndPersistId)
@@ -53,11 +45,9 @@ class PrimaryReplica(persistenceProps: Props) extends Actor {
 
       val newOriginalClients = originalClients + (replicateAndPersistId -> (id -> sender))
 
-      context.become(properReceive(newKv, replicasAndReplicators, newPendingPersists, newPendingReplications, newOriginalClients))
+      context.become(properReceive(newKv, replicasAndReplicators, newPendingPersists, newPendingReplications, newOriginalClients, replicateAndPersistId + 1))
 
     case Remove(key, id) =>
-      val replicateAndPersistId = nextReplicateAndPersistId
-
       val newKv = kv - key
 
       context.actorOf(Props(new Persister(new Persist(key, None, replicateAndPersistId), persistenceActor)), "Remove_Persister" + replicateAndPersistId)
@@ -74,7 +64,7 @@ class PrimaryReplica(persistenceProps: Props) extends Actor {
 
       val newOriginalClients = originalClients + (replicateAndPersistId -> (id -> sender))
 
-      context.become(properReceive(newKv, replicasAndReplicators, newPendingPersists, newPendingReplications, newOriginalClients))
+      context.become(properReceive(newKv, replicasAndReplicators, newPendingPersists, newPendingReplications, newOriginalClients, replicateAndPersistId + 1))
 
     case PersistComplete(key, id) =>
       val newPendingPersists = pendingPersists - id
@@ -91,7 +81,7 @@ class PrimaryReplica(persistenceProps: Props) extends Actor {
           originalClients
         }
 
-      context.become(properReceive(kv, replicasAndReplicators, newPendingPersists, pendingReplications, newOriginalClients))
+      context.become(properReceive(kv, replicasAndReplicators, newPendingPersists, pendingReplications, newOriginalClients, replicateAndPersistId))
 
     case PersistFailed(key, id) =>
       val newPendingPersists = pendingPersists - id
@@ -103,7 +93,7 @@ class PrimaryReplica(persistenceProps: Props) extends Actor {
         case (originalId, originalClient) => originalClient ! OperationFailed(originalId)
       }
 
-      context.become(properReceive(kv, replicasAndReplicators, newPendingPersists, newPendingReplications, originalClients - id))
+      context.become(properReceive(kv, replicasAndReplicators, newPendingPersists, newPendingReplications, originalClients - id, replicateAndPersistId))
 
     case Get(key, id) =>
       sender ! GetResult(key, kv.get(key), id)
@@ -131,7 +121,7 @@ class PrimaryReplica(persistenceProps: Props) extends Actor {
       if (addedReplicasAndReplicators.nonEmpty) {
         kv.foreach {
           case (key, value) =>
-            val replicateId = nextReplicateAndPersistId
+            val replicateId = -1 // We don't care about tracking this...
             val replicate = new Replicate(key, Some(value), replicateId)
             context.actorOf(Props(new GlobalReplicator(replicate, addedReplicasAndReplicators.values.toSet)))
         }
@@ -153,7 +143,7 @@ class PrimaryReplica(persistenceProps: Props) extends Actor {
 
       // 5. Update all of the state, and context.become.
       val newReplicasAndReplicators = (replicasAndReplicators ++ addedReplicasAndReplicators) -- removedReplicas
-      context.become(properReceive(kv, newReplicasAndReplicators, pendingPersists, pendingReplications, originalClients))
+      context.become(properReceive(kv, newReplicasAndReplicators, pendingPersists, pendingReplications, originalClients, replicateAndPersistId))
 
     case GlobalReplicationSuccess(replicate: Replicate) =>
       val newPendingReplications = pendingReplications - replicate.id
@@ -169,7 +159,7 @@ class PrimaryReplica(persistenceProps: Props) extends Actor {
           originalClients
         }
 
-      context.become(properReceive(kv, replicasAndReplicators, pendingPersists, newPendingReplications, newOriginalClients))
+      context.become(properReceive(kv, replicasAndReplicators, pendingPersists, newPendingReplications, newOriginalClients, replicateAndPersistId))
 
     case GlobalReplicationTimedOut(replicate: Replicate) =>
       val newPendingReplications = pendingReplications - replicate.id
@@ -181,7 +171,7 @@ class PrimaryReplica(persistenceProps: Props) extends Actor {
         case (originalId, originalClient) => originalClient ! OperationFailed(originalId)
       }
 
-      context.become(properReceive(kv, replicasAndReplicators, newPendingPersists, newPendingReplications, originalClients - replicate.id))
+      context.become(properReceive(kv, replicasAndReplicators, newPendingPersists, newPendingReplications, originalClients - replicate.id, replicateAndPersistId))
 
     case _ =>
   }
