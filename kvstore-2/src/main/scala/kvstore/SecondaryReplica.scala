@@ -9,13 +9,13 @@ import kvstore.Persister.{PersistFailed, PersistComplete}
 class SecondaryReplica(persistenceProps: Props) extends Actor {
   val persistenceActor = context.actorOf(persistenceProps)
 
-  context.become(receive(expectedSeq = 0))
+  context.become(receive(Map.empty[String, String], Map.empty[Long, ActorRef], expectedSeq = 0))
 
   // To satisfy the compiler...
   def receive: Receive = { case _ => }
 
-  def receive(kv: Map[String, String] = Map.empty[String, String],
-              pendingPersists: Map[Long, ActorRef] = Map.empty[Long, ActorRef],
+  def receive(kv: Map[String, String],
+              pendingPersists: Map[Long, ActorRef],
               expectedSeq: Long): Receive = {
 
     case Get(key, id) =>
