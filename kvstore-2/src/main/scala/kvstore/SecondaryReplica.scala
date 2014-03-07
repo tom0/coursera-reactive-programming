@@ -50,7 +50,8 @@ class SecondaryReplica(persistenceProps: Props) extends Actor {
       val persister = context.actorOf(Props(new Persister(persist, persistenceActor)))
       context.become(receive(newKv, pendingPersists + (seq -> (sender, persister)), nextExpectedSeq))
 
-    case Snapshot(key, _, seq) if seq < expectedSeq => sender ! SnapshotAck(key, seq)
+    case Snapshot(key, _, seq) if seq < expectedSeq =>
+      sender ! SnapshotAck(key, seq)
 
     case _ =>
   }

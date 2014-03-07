@@ -47,6 +47,7 @@ class Replicator(val replica: ActorRef) extends Actor {
   }
 
   def resendOnTimeout(messageToResend: Any): Receive = {
-    case ReceiveTimeout => replica ! messageToResend
+    case ReceiveTimeout =>
+      replica ! messageToResend
   }
 }

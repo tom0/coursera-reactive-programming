@@ -109,7 +109,7 @@ class PrimaryReplica(persistenceProps: Props) extends Actor {
       sender ! GetResult(key, kv.get(key), id)
 
     case Replicas(newReplicas) =>
-      val newReplicasWithoutSelf = newReplicas.filter( _ != self )
+      val newReplicasWithoutSelf = newReplicas.filter( !context.parent.equals(_) )
       val currentReplicas = replicasAndReplicators.keySet
       val addedReplicas = newReplicasWithoutSelf.diff(currentReplicas)
       val removedReplicas = currentReplicas.diff(newReplicasWithoutSelf)

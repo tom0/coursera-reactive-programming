@@ -34,8 +34,10 @@ class GlobalReplicator(val replicate: Replicate,
   def receive: Receive = { case _ => }
 
   def receiveReplicated(remainingReplicators: Set[ActorRef]): Receive = {
-    case Replicated => handleRemainingReplicators(remainingReplicators - sender)
-    case ReplicatorsRemoved(replis) => handleRemainingReplicators(remainingReplicators -- replis)
+    case Replicated(_, _) =>
+      handleRemainingReplicators(remainingReplicators - sender)
+    case ReplicatorsRemoved(replis) =>
+      handleRemainingReplicators(remainingReplicators -- replis)
     case t @ GlobalReplicationTimedOut(r) =>
       context.stop(self)
       context.parent ! t
