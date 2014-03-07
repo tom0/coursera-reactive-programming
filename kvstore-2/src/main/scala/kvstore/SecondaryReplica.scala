@@ -9,13 +9,20 @@ import kvstore.Persister.{PersistFailed, PersistComplete}
 class SecondaryReplica(persistenceProps: Props) extends Actor {
   val persistenceActor = context.actorOf(persistenceProps)
 
-  context.become(receive(Map.empty[String, String], Map.empty[Long, ActorRef], expectedSeq = 0))
+  var _expectedSeqCounter = 0L
+  def nextExpectedSeq = {
+    val ret = _expectedSeqCounter
+    _expectedSeqCounter += 1
+    ret
+  }
+
+  context.become(receive(expectedSeq = nextExpectedSeq))
 
   // To satisfy the compiler...
   def receive: Receive = { case _ => }
 
-  def receive(kv: Map[String, String],
-              pendingPersists: Map[Long, ActorRef],
+  def receive(kv: Map[String, String] = Map.empty[String, String],
+              pendingPersists: Map[Long, ActorRef] = Map.empty[Long, ActorRef],
               expectedSeq: Long): Receive = {
 
     case Get(key, id) =>
@@ -38,7 +45,7 @@ class SecondaryReplica(persistenceProps: Props) extends Actor {
 
       val persist = Persist(key, valueOption, seq)
       context.actorOf(Props(new Persister(persist, persistenceActor)), "Secondary_Persister" + seq)
-      context.become(receive(newKv, pendingPersists + (seq -> sender), expectedSeq + 1))
+      context.become(receive(newKv, pendingPersists + (seq -> sender), nextExpectedSeq))
 
     case Snapshot(key, _, seq) if seq < expectedSeq =>
       sender ! SnapshotAck(key, seq)
