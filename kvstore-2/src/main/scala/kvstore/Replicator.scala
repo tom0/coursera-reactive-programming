@@ -19,28 +19,25 @@ object Replicator {
 class Replicator(val replica: ActorRef) extends Actor {
   import Replicator._
 
-  var _seqCounter = 0L
-  def nextSeq = {
-    val ret = _seqCounter
-    _seqCounter += 1
-    ret
-  }
-  
-  def receive: Receive = {
+  context.become(receive(seq = 0))
+
+  def receive: Receive = { case _ => }
+
+  def receive(seq: Long): Receive = {
     case Replicate(key, value, id) =>
-      val msg = Snapshot(key, value, nextSeq)
+      val msg = Snapshot(key, value, seq)
       replica ! msg
       context.setReceiveTimeout(Replicator.RECEIVE_TIMEOUT)
-      context.become(receivePendingSnapshotAcknowledgements(sender, id) orElse resendOnTimeout(msg))
+      context.become(receivePendingSnapshotAcknowledgements(sender, id, seq) orElse resendOnTimeout(msg))
     case ReceiveTimeout =>
       // Ignore resend timeouts here.
       context.setReceiveTimeout(Duration.Undefined)
   }
 
-  def receivePendingSnapshotAcknowledgements(originalSender: ActorRef, replicationId: Long): Receive = {
+  def receivePendingSnapshotAcknowledgements(originalSender: ActorRef, replicationId: Long, seq: Long): Receive = {
     case SnapshotAck(key, seq) =>
       context.setReceiveTimeout(Duration.Undefined)
-      context.become(receive)
+      context.become(receive(seq + 1))
       originalSender ! Replicated(key, replicationId)
   }
 
