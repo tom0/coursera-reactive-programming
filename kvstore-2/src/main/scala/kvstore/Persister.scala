@@ -18,13 +18,15 @@ class Persister(persist: Persist, persistenceActor: ActorRef, timeoutPeriod: Dur
   val retryer = context.actorOf(Props(new Retryer(persistenceActor, persist)))
 
   override def receive: Actor.Receive = LoggingReceive {
-    case Persisted(key, id) /*if id == persist.id*/ =>
+    case Persisted(key, id) =>
       context.setReceiveTimeout(Duration.Undefined)
       context.stop(retryer)
       context.parent ! PersistComplete(key, id)
+      context.stop(self)
     case ReceiveTimeout =>
       context.setReceiveTimeout(Duration.Undefined)
       context.stop(retryer)
       context.parent ! PersistFailed(persist.key, persist.id)
+      context.stop(self)
   }
 }
